@@ -16,6 +16,28 @@ if (window.location.pathname.includes("/student/reviews/")) {
     // Get all the <p> elements
     let paragraphs = document.querySelectorAll('p');
 
+    let body = document.querySelector("body > div > div").innerHTML;
+    let splitBody = body.split("<h4>");
+
+    let output = splitBody.map((section) => {
+        let parts = section.split("<p>");
+
+        parts = parts.map((paragraph, index) => {
+        if (index < 2) return paragraph;
+
+        return paragraph
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+        });
+
+        return parts.join("<p>");
+    });
+
+    let newHTML = output.join("<h4>");
+
+    document.querySelector("body > div > div").innerHTML = newHTML;
+
 
     // Loop through the <p> elements
     function preVert() {
@@ -23,10 +45,10 @@ if (window.location.pathname.includes("/student/reviews/")) {
 
 
             if (paragraphs[i]?.tagName === "P" && paragraphs[i]?.nextElementSibling?.tagName === "P" || paragraphs[i]?.tagName === "P" && paragraphs[i]?.previousElementSibling?.tagName === "PRE") {
-                const preElement = document.createElement('pre');
+                // const preElement = document.createElement('pre');
                 preElement.className = "DBXFF-review-text";
                 preElement.innerHTML = paragraphs[i].innerHTML;
-                paragraphs[i].replaceWith(preElement);
+                // paragraphs[i].replaceWith(preElement);
                 //paragraphs[i].nextElementSibling.tagName === "P" || paragraphs[i].previousElementSibling.tagName === "P"
             }
 
