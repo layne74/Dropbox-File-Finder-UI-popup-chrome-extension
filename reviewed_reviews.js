@@ -1,61 +1,127 @@
-
-
 // Reverts all the mentor review text to if original format
 
-
 // 1. Identify the <p> tags
-// 2. Iterate over the retrieved <p> elements 
+// 2. Iterate over the retrieved <p> elements
 // 2.1. Create a new <pre> element
 // 2.2. Set the innerHTML of the <pre> element to the innerHTML of the <p> element
 // 2.3. Replace the <p> element with the <pre> element
 // 3. Use the 'replaceWith' method to replace the <p> element with the <pre> element
 
-
 if (window.location.pathname.includes("/student/reviews/")) {
+  let paragraphs = document.querySelectorAll("p");
 
-    // Get all the <p> elements
-    let paragraphs = document.querySelectorAll('p');
+  // Loop through the <p> elements
+  function preVert() {
+    for (let i = 0; i < paragraphs.length; i++) {
+      if (
+        (paragraphs[i]?.tagName === "P" &&
+          paragraphs[i]?.nextElementSibling?.tagName === "P") ||
+        (paragraphs[i]?.tagName === "P" &&
+          paragraphs[i]?.previousElementSibling?.tagName === "PRE")
+      ) {
+        const preElement = document.createElement("pre");
+        preElement.className = "DBXFF-review-text";
+        preElement.innerHTML = paragraphs[i].innerHTML.trim();
+        paragraphs[i].replaceWith(preElement);
+        //paragraphs[i].nextElementSibling.tagName === "P" || paragraphs[i].previousElementSibling.tagName === "P"
+      }
+    }
+    //contained()
+  }
 
+  function cleanUpTest() {
     let body = document.querySelector("body > div > div").innerHTML;
     let splitBody = body.split("<h4>");
+    console.log("splitBody", splitBody);
 
     let output = splitBody.map((section) => {
-        let parts = section.split("<p>");
+      let parts = section.split("<p>");
+      console.log("parts", parts);
+      // parts[1] = "<p>" + parts[1];
 
-        parts = parts.map((paragraph, index) => {
+      parts = parts.map((paragraph, index) => {
+        // Skips details and score
         if (index < 2) return paragraph;
 
-        return paragraph
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
-        });
+        // Due to split on <p> tags,the closing tag needs to be removed
+        // Removing everything that comes after it as well.
+        let afterClosingTag = paragraph.lastIndexOf("</p>");
+        let end = paragraph.slice(afterClosingTag + 4).trim();
+        if (afterClosingTag !== -1) {
+          paragraph = paragraph.slice(0, afterClosingTag);
+        }
 
-        return parts.join("<p>");
+        const divElement = document.createElement("div");
+        const preElement = document.createElement("pre");
+
+        preElement.className = "DBXFF-review-text";
+        preElement.textContent = paragraph.trim();
+        divElement.appendChild(preElement);
+        divElement.innerHTML += end;
+        return divElement.outerHTML;
+      });
+
+      return parts.join("");
     });
 
     let newHTML = output.join("<h4>");
 
     document.querySelector("body > div > div").innerHTML = newHTML;
+  }
 
+  function cleanUp() {
+    let body = document.querySelector("body > div > div").innerHTML;
+    let splitBody = body.split("<h4>");
 
-    // Loop through the <p> elements
-    function preVert() {
-        for (let i = 0; i < paragraphs.length; i++) {
+    let output = splitBody.map((section) => {
 
+      let parts = section.split("<p>");
+      console.log("parts", parts);
+      
+      parts = parts.map((paragraph, index) => {
+        // Adds the missing opening P tag to Reviewer, submitted and completed
+        if (index == 1) return "<p>" + paragraph;
+        // Skips details and score
+        if (index < 2) return paragraph;
 
-            if (paragraphs[i]?.tagName === "P" && paragraphs[i]?.nextElementSibling?.tagName === "P" || paragraphs[i]?.tagName === "P" && paragraphs[i]?.previousElementSibling?.tagName === "PRE") {
-                // const preElement = document.createElement('pre');
-                preElement.className = "DBXFF-review-text";
-                preElement.innerHTML = paragraphs[i].innerHTML;
-                // paragraphs[i].replaceWith(preElement);
-                //paragraphs[i].nextElementSibling.tagName === "P" || paragraphs[i].previousElementSibling.tagName === "P"
-            }
-
-
+        // Due to split on <p> tags,the closing tag needs to be removed
+        // Removing everything that comes after it as well.
+        let afterClosingTag = paragraph.lastIndexOf("</p>");
+        let end = "";
+        // If there is a closing tag
+        if (afterClosingTag !== -1) {
+          // Get everything that comes after the closing tag - this captures the <hr> dividers and 
+          // script tag at the end of the page
+          end = paragraph.slice(afterClosingTag + 4).trim();
+          paragraph = paragraph.slice(0, afterClosingTag);
+          // If there is no closing tag, it is assumed that a <p> tag is present in the review.
+          // The current part is skipped but added to the next part including the <p> tag that 
+          // is missing due to the split
+        } else {
+          parts[index + 1] = parts[index] + "<p>" + parts[index + 1];
+          return;
         }
-        //contained() 
-    }
-    preVert()
 
+        const divElement = document.createElement("div");
+        const preElement = document.createElement("pre");
+
+        preElement.className = "DBXFF-review-text";
+        preElement.textContent = paragraph.trim();
+        divElement.appendChild(preElement);
+        divElement.innerHTML += end;
+        return divElement.outerHTML;
+      });
+
+      return parts.join("");
+    });
+
+    let newHTML = output.join("<h4>");
+
+    document.querySelector("body > div > div").innerHTML = newHTML;
+    
+  }
+
+  // preVert()
+  // cleanUp()
+  cleanUp()
 }
