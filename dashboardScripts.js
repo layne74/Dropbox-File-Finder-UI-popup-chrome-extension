@@ -274,6 +274,74 @@ function reviewRows() {
 
 }
 
+/**
+ * Toggles the visibility of the duplicates table on the reviewer dashboard.
+ * If the table is hidden, shows it and updates the button text to "Hide Duplicates".
+ * If the table is visible, hides it and updates the button text to "Show Duplicates".
+ */
+function showHideDuplicates() {
+  // Get all table elements
+  const tables = document.querySelectorAll("tbody");
+  const duplicatesTable = tables[2];
+  const duplicatesHeading = duplicatesTable?.parentElement?.parentElement;
+  const dupesHidden = localStorage.getItem("hideDuplicates") || false;
+
+  // If the table is present, then create the button and counter
+  if (duplicatesTable && duplicatesHeading) {
+    // Set the position to relative
+    duplicatesHeading.style.position = "relative";
+
+    // Check if the table is hidden
+    if (dupesHidden === "true") {
+      duplicatesTable.classList.add("hidden");
+    }
+
+    // Create a div
+    let div = document.createElement("div");
+    div.className = "DBXFF-duplicates-btn-container";
+
+    // Create the button
+    let button = document.createElement("button");
+    button.className = "DBXFF-duplicates-btn";
+    button.innerText = dupesHidden ? "Show Duplicates" : "Hide Duplicates";
+    // Add button to the div container
+    div.appendChild(button);
+
+    // Create the counter
+    let counter = document.createElement("span");
+    counter.className = "DBXFF-duplicates-counter";
+    counter.innerText = countDuplicates();
+    div.appendChild(counter);
+
+    // Add the button to the table
+    duplicatesHeading.appendChild(div);
+
+    function countDuplicates() {
+      const rows = duplicatesTable.querySelectorAll("tr");
+      return rows.length;
+    }
+
+    // Add event listener to the button
+    button.addEventListener("click", () => {
+      // If the table is hidden
+      if (duplicatesTable.classList.contains("hidden")) {
+        duplicatesTable.classList.remove("hidden");
+        button.innerText = "Hide Duplicates";
+        localStorage.setItem("hideDuplicates", "false");
+      // If the table is visible
+      } else {
+        duplicatesTable.classList.add("hidden");
+        button.innerText = "Show Duplicates";
+        localStorage.setItem("hideDuplicates", "true");
+      }
+    });
+
+
+
+  } 
+  
+}
+
 //Call functions based on the path
 if (
   window.location.pathname.includes("generate_review") ||
@@ -288,6 +356,7 @@ if (
 }
 
 if (window.location.pathname.includes("reviewer/dashboard")) {
+  showHideDuplicates();
   reviewCounterEl();
   highlightTRs();
   resub();
