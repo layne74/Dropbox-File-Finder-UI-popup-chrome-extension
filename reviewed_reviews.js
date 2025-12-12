@@ -7,6 +7,24 @@
 // 2.3. Replace the <p> element with the <pre> element
 // 3. Use the 'replaceWith' method to replace the <p> element with the <pre> element
 
+//! -----------------------------DO NOT TOUCH.---------------------------------------------
+// DO NOT TOUCH. THESE ARE TEMPLATES BEING LOOKED FOR IN THE REVIEWS
+// IF YOU TOUCH THEM YOU WILL BREAK THE LAYOUT OF THE REVIEWS
+const KEYFORHR = `</p>
+        
+    
+        <hr>
+        <hr>
+        <hr>`;
+// DO NOT TOUCH. THESE ARE TEMPLATES BEING LOOKED FOR IN THE REVIEWS
+// IF YOU TOUCH THEM YOU WILL BREAK THE LAYOUT OF THE REVIEWS
+const KEYFOREXTRA = `</p>
+        
+    
+        
+    </div>`;
+//! -----------------------------DO NOT TOUCH.---------------------------------------------
+
 if (window.location.pathname.includes("/student/reviews/")) {
   let paragraphs = document.querySelectorAll("p");
 
@@ -29,33 +47,33 @@ if (window.location.pathname.includes("/student/reviews/")) {
     //contained()
   }
 
-/**
- * Takes in the HTML STRING of reviewer details, score and the br.
- * If the score is less than or equal to 2, the resubmission pill is appended to the score heading
- * Else string will be returned if with nothing added if the score is greater than 2
- * @param {string} str - The HTML content to parse
- * @returns {string} - The modified HTML content with a resubmission pill
- */
+  /**
+   * Takes in the HTML STRING of reviewer details, score and the br.
+   * If the score is less than or equal to 2, the resubmission pill is appended to the score heading
+   * Else string will be returned if with nothing added if the score is greater than 2
+   * @param {string} str - The HTML content to parse
+   * @returns {string} - The modified HTML content with a resubmission pill
+   */
   function addPill(str) {
-    // Parse the HTML string into a DOM object and 
+    // Parse the HTML string into a DOM object and
     // Grab the body to get rid of the HTML tags
     const parser = new DOMParser();
-    const body = parser.parseFromString(str, 'text/html').body;
+    const body = parser.parseFromString(str, "text/html").body;
 
     // Selects the h5 that houses the "<b>Score</b>"
-    let scoreHeading = body.querySelector('h5');
+    let scoreHeading = body.querySelector("h5");
     scoreHeading.style.width = "100%";
     scoreHeading.style.display = "flex";
     scoreHeading.style.justifyContent = "space-between";
     // Grabs the score from "Completeness: 2/4"
-    let score = Number(body.querySelector('h6').innerText.slice(14, 15));
- 
-  /**
-   * Creates a pill element with the given text and class
-   * @param {string} txt - The text to display in the pill
-   * @param {boolean} pass - Whether the pill should be a pass or resubmission pill
-   * @returns {Element} - The pill element
-   */
+    let score = Number(body.querySelector("h6").innerText.slice(14, 15));
+
+    /**
+     * Creates a pill element with the given text and class
+     * @param {string} txt - The text to display in the pill
+     * @param {boolean} pass - Whether the pill should be a pass or resubmission pill
+     * @returns {Element} - The pill element
+     */
     function createPill(txt, pass) {
       let resubmissionPill = document.createElement("span");
       resubmissionPill.className = "DBXFF-pill";
@@ -68,7 +86,6 @@ if (window.location.pathname.includes("/student/reviews/")) {
     // If the score is less than or equal to 2
     if (score <= 2) {
       scoreHeading.appendChild(createPill("Resub", false));
-      console.log(score)
     } else {
       scoreHeading.appendChild(createPill("Pass", true));
     }
@@ -76,16 +93,17 @@ if (window.location.pathname.includes("/student/reviews/")) {
     return body.innerHTML;
   }
 
-/**
- * Clean up previous reviews by cleaning the reviews allowing HTML tags
- * to be displayed and also reformatting the review blocks into <pre> elements.
- */
+  /**
+   * Clean up previous reviews by cleaning the reviews allowing HTML tags
+   * to be displayed and also reformatting the review blocks into <pre> elements.
+   */
   function cleanPreviousReviews() {
     let body = document.querySelector("body > div > div").innerHTML;
     let splitBody = body.split("<h4>");
 
     // Map over each review
     let output = splitBody.map((section) => {
+      // console.log("section: ", section);
 
       /*
         Splits like this
@@ -94,32 +112,82 @@ if (window.location.pathname.includes("/student/reviews/")) {
         2 < - Review blocks 
       */
       let parts = section.split("<p>");
-      
+
       parts = parts.map((paragraph, index) => {
-        // Adds the opening P tag that is removed from split to Reviewer, submitted and completed
+        paragraph = paragraph.trim();
+        // console.log("paragraph: ", paragraph);
+
+        // // console.log("paragraph: ", paragraph);
+        // // Adds the opening P tag that is removed from split to Reviewer, submitted and completed
         if (index == 1) {
           return addPill("<p>" + paragraph);
         }
         // Skips details and score
         if (index < 2) return paragraph;
 
-        // Due to split on <p> tags,the closing tag needs to be removed
-        // Removing everything that comes after it as well.
-        let afterClosingTag = paragraph.lastIndexOf("</p>");
-        let end = ""; 
-        // If there is a closing tag
-        if (afterClosingTag !== -1) {
-          // Get everything that comes after the closing tag - this captures the <hr> dividers and 
-          // script tag at the end of the page
-          end = paragraph.slice(afterClosingTag + 4).trim();
-          paragraph = paragraph.slice(0, afterClosingTag);
-          // If there is no closing tag, it is assumed that a <p> tag is present in the review.
-          // The current part is skipped but added to the next part including the <p> tag that 
-          // is missing due to the split
-        } else {
-          parts[index + 1] = parts[index] + "<p>" + parts[index + 1];
+        if (paragraph.indexOf("</p>") == 0) {
+          parts[index - 1] = parts[index - 1] + parts[index];
           return;
         }
+
+        let lastClosingTag = paragraph.slice(
+          paragraph.lastIndexOf("</p>") + 4,
+          paragraph.length
+        ).length;
+        if (lastClosingTag == 0) {
+          paragraph = paragraph.substring(0, paragraph.length - 4);
+        }
+
+        let end = "";
+        let afterClosingTagHR = paragraph.lastIndexOf(KEYFORHR);
+        let afterClosingTagExtra = paragraph.lastIndexOf(KEYFOREXTRA);
+        if (afterClosingTagHR != -1 || afterClosingTagExtra != -1) {
+          if (afterClosingTagHR != -1) {
+            end = paragraph.slice(afterClosingTagHR).trim();
+            paragraph = paragraph.substring(0, afterClosingTagHR);
+          }
+          if (afterClosingTagExtra != -1) {
+            end = paragraph.slice(afterClosingTagExtra).trim();
+            paragraph = paragraph.substring(0, afterClosingTagExtra);
+          }
+        }
+
+        // // Check if there is a closing p tag at the end of the paragraph
+        // let lastClosingTag = paragraph.slice(paragraph.lastIndexOf("</p>") + 4, paragraph.length).length
+        // if (lastClosingTag == 0) {
+        //   parts[index] = (parts[index] + parts[index + 1]);
+        //   // return;
+        //   // remove the next part
+        //   parts.splice(index + 1, 1);
+        // }
+
+        // // Due to split on <p> tags,the closing tag needs to be removed
+        // // Removing everything that comes after it as well.
+        // let afterClosingTag = paragraph.lastIndexOf("</p>");
+        // let afterClosingTagStart = paragraph[index + 1].indexOf("</p>");
+        // console.log("afterClosingTagStart: ", afterClosingTagStart);
+        // let end = "";
+
+        // if (afterClosingTagStart == 0) {
+        //   console.log("paragraph at 0: ", paragraph)
+        //   parts[index] = (parts[index] + parts[index + 1]).trim();
+        //   console.log("combined: ", parts[index - 1])
+        //   return;
+
+        //   // If there is no closing tag, it is assumed that a <p> tag is present in the review.
+        //   // The current part is skipped but added to the next part including the <p> tag that
+        //   // is missing due to the split
+        // }
+        // // If there is a closing tag
+        // else if (afterClosingTag !== -1) {
+        //   // Get everything that comes after the closing tag - this captures the <hr> dividers and
+        //   // script tag at the end of the page
+        //   end = paragraph.slice(afterClosingTag + 4).trim();
+        //   paragraph = paragraph.slice(0, afterClosingTag);
+        // }  else {
+        //   parts[index + 1] = parts[index] + "<p>" + parts[index + 1];
+        //   return;
+        // }
 
         // Houses the review part (positive, improvements, overall) and any residual HTML
         const divElement = document.createElement("div");
@@ -127,7 +195,7 @@ if (window.location.pathname.includes("/student/reviews/")) {
         const preElement = document.createElement("pre");
 
         preElement.className = "DBXFF-review-text"; // Class for styling
-        preElement.textContent = paragraph.trim();  
+        preElement.textContent = paragraph.trim();
         divElement.appendChild(preElement);
         divElement.innerHTML += end; // Add any residual HTML
         return divElement.outerHTML;
@@ -139,9 +207,8 @@ if (window.location.pathname.includes("/student/reviews/")) {
     let newHTML = output.join("<h4>");
 
     document.querySelector("body > div > div").innerHTML = newHTML;
-    
   }
 
   // preVert()
-  cleanPreviousReviews()
+  cleanPreviousReviews();
 }
