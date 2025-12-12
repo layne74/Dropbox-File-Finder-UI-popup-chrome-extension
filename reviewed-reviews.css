@@ -15,3 +15,24 @@
     background-color: #c8d9f8;
     transition: .2s ease-in-out;
 }
+
+.DBXFF-pill {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    padding: 4px 8px;
+    border-radius: 99px;
+    font-size: 0.8rem;
+}
+
+.DBXFF-pass {
+    color: green;
+    border: 1px solid green;
+    
+}
+
+.DBXFF-resub {
+    color: red;
+    border: 1px solid red;
+}

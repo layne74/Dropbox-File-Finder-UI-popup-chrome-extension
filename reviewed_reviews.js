@@ -30,6 +30,53 @@ if (window.location.pathname.includes("/student/reviews/")) {
   }
 
 /**
+ * Takes in the HTML STRING of reviewer details, score and the br.
+ * If the score is less than or equal to 2, the resubmission pill is appended to the score heading
+ * Else string will be returned if with nothing added if the score is greater than 2
+ * @param {string} str - The HTML content to parse
+ * @returns {string} - The modified HTML content with a resubmission pill
+ */
+  function addPill(str) {
+    // Parse the HTML string into a DOM object and 
+    // Grab the body to get rid of the HTML tags
+    const parser = new DOMParser();
+    const body = parser.parseFromString(str, 'text/html').body;
+
+    // Selects the h5 that houses the "<b>Score</b>"
+    let scoreHeading = body.querySelector('h5');
+    scoreHeading.style.width = "100%";
+    scoreHeading.style.display = "flex";
+    scoreHeading.style.justifyContent = "space-between";
+    // Grabs the score from "Completeness: 2/4"
+    let score = Number(body.querySelector('h6').innerText.slice(14, 15));
+ 
+  /**
+   * Creates a pill element with the given text and class
+   * @param {string} txt - The text to display in the pill
+   * @param {boolean} pass - Whether the pill should be a pass or resubmission pill
+   * @returns {Element} - The pill element
+   */
+    function createPill(txt, pass) {
+      let resubmissionPill = document.createElement("span");
+      resubmissionPill.className = "DBXFF-pill";
+      resubmissionPill.classList.add(pass ? "DBXFF-pass" : "DBXFF-resub");
+      resubmissionPill.innerHTML = txt;
+      return resubmissionPill;
+    }
+
+    // Appends the resubmission pill to the score heading
+    // If the score is less than or equal to 2
+    if (score <= 2) {
+      scoreHeading.appendChild(createPill("Resub", false));
+      console.log(score)
+    } else {
+      scoreHeading.appendChild(createPill("Pass", true));
+    }
+
+    return body.innerHTML;
+  }
+
+/**
  * Clean up previous reviews by cleaning the reviews allowing HTML tags
  * to be displayed and also reformatting the review blocks into <pre> elements.
  */
@@ -50,7 +97,9 @@ if (window.location.pathname.includes("/student/reviews/")) {
       
       parts = parts.map((paragraph, index) => {
         // Adds the opening P tag that is removed from split to Reviewer, submitted and completed
-        if (index == 1) return "<p>" + paragraph;
+        if (index == 1) {
+          return addPill("<p>" + paragraph);
+        }
         // Skips details and score
         if (index < 2) return paragraph;
 
