@@ -166,16 +166,32 @@
   color: white;
   background-color: #71D5AF;
   border-radius: 5px;
+  width: 15rem;
   padding: 6px 13px;
   position: absolute;
+  border: 1px solid rgba(0, 0, 0, 0.24);
+  -webkit-user-select: none;
+  user-select: none;
+  transition: all ease-in-out 0.15s;
+}
+
+.DBXFF-duplicates-btn:hover {
+  background-color: #6bc9a5;
+}
+
+.DBXFF-duplicates-btn:focus {
+  outline: 1px solid rgba(0, 0, 0, 0.24);
 }
 
 .DBXFF-duplicates-counter {
   color: white;
   background-color: #71D5AF;
-  border: 1px solid black;
+  border: 1px solid rgba(0, 0, 0, 0.24);
   border-radius: 5px;
   padding: 6px 13px;
   position: absolute;
   right: 0px;
+  -webkit-user-select: none;
+  user-select: none;
+
 }
