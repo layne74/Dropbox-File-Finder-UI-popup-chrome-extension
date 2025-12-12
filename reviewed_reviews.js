@@ -7,7 +7,7 @@
 // 2.3. Replace the <p> element with the <pre> element
 // 3. Use the 'replaceWith' method to replace the <p> element with the <pre> element
 
-//! -----------------------------DO NOT TOUCH.---------------------------------------------
+//! -----------------------------DO NOT TOUCH.---------------------------------------------💀
 // DO NOT TOUCH. THESE ARE TEMPLATES BEING LOOKED FOR IN THE REVIEWS
 // IF YOU TOUCH THEM YOU WILL BREAK THE LAYOUT OF THE REVIEWS
 const KEYFORHR = `</p>
@@ -23,7 +23,7 @@ const KEYFOREXTRA = `</p>
     
         
     </div>`;
-//! -----------------------------DO NOT TOUCH.---------------------------------------------
+//! -----------------------------DO NOT TOUCH.--------------------------------------------💀
 
 if (window.location.pathname.includes("/student/reviews/")) {
   let paragraphs = document.querySelectorAll("p");
@@ -115,32 +115,39 @@ if (window.location.pathname.includes("/student/reviews/")) {
 
       parts = parts.map((paragraph, index) => {
         paragraph = paragraph.trim();
-        // console.log("paragraph: ", paragraph);
 
-        // // console.log("paragraph: ", paragraph);
-        // // Adds the opening P tag that is removed from split to Reviewer, submitted and completed
         if (index == 1) {
           return addPill("<p>" + paragraph);
         }
         // Skips details and score
         if (index < 2) return paragraph;
 
+        // If the paragraph starts with </p>, add it to the previous paragraph
         if (paragraph.indexOf("</p>") == 0) {
           parts[index - 1] = parts[index - 1] + parts[index];
           return;
         }
 
+        // Get the length between the last closing tag and the end of the paragraph
         let lastClosingTag = paragraph.slice(
           paragraph.lastIndexOf("</p>") + 4,
           paragraph.length
         ).length;
+        // If it is at the end of the paragraph, remove the closing tag
         if (lastClosingTag == 0) {
           paragraph = paragraph.substring(0, paragraph.length - 4);
         }
 
+        //! CLEAN UP SECTION
+        /* 
+        * If the paragraph contains either of the keys, slice it and add it to the end
+        * The paragraph will be trimmed to remove it from the end
+        */
+
         let end = "";
         let afterClosingTagHR = paragraph.lastIndexOf(KEYFORHR);
         let afterClosingTagExtra = paragraph.lastIndexOf(KEYFOREXTRA);
+        // If the paragraph contains either of the keys
         if (afterClosingTagHR != -1 || afterClosingTagExtra != -1) {
           if (afterClosingTagHR != -1) {
             end = paragraph.slice(afterClosingTagHR).trim();
@@ -151,43 +158,6 @@ if (window.location.pathname.includes("/student/reviews/")) {
             paragraph = paragraph.substring(0, afterClosingTagExtra);
           }
         }
-
-        // // Check if there is a closing p tag at the end of the paragraph
-        // let lastClosingTag = paragraph.slice(paragraph.lastIndexOf("</p>") + 4, paragraph.length).length
-        // if (lastClosingTag == 0) {
-        //   parts[index] = (parts[index] + parts[index + 1]);
-        //   // return;
-        //   // remove the next part
-        //   parts.splice(index + 1, 1);
-        // }
-
-        // // Due to split on <p> tags,the closing tag needs to be removed
-        // // Removing everything that comes after it as well.
-        // let afterClosingTag = paragraph.lastIndexOf("</p>");
-        // let afterClosingTagStart = paragraph[index + 1].indexOf("</p>");
-        // console.log("afterClosingTagStart: ", afterClosingTagStart);
-        // let end = "";
-
-        // if (afterClosingTagStart == 0) {
-        //   console.log("paragraph at 0: ", paragraph)
-        //   parts[index] = (parts[index] + parts[index + 1]).trim();
-        //   console.log("combined: ", parts[index - 1])
-        //   return;
-
-        //   // If there is no closing tag, it is assumed that a <p> tag is present in the review.
-        //   // The current part is skipped but added to the next part including the <p> tag that
-        //   // is missing due to the split
-        // }
-        // // If there is a closing tag
-        // else if (afterClosingTag !== -1) {
-        //   // Get everything that comes after the closing tag - this captures the <hr> dividers and
-        //   // script tag at the end of the page
-        //   end = paragraph.slice(afterClosingTag + 4).trim();
-        //   paragraph = paragraph.slice(0, afterClosingTag);
-        // }  else {
-        //   parts[index + 1] = parts[index] + "<p>" + parts[index + 1];
-        //   return;
-        // }
 
         // Houses the review part (positive, improvements, overall) and any residual HTML
         const divElement = document.createElement("div");

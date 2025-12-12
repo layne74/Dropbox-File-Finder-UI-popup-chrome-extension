@@ -284,7 +284,7 @@ function showHideDuplicates() {
   const tables = document.querySelectorAll("tbody");
   const duplicatesTable = tables[2];
   const duplicatesHeading = duplicatesTable?.parentElement?.parentElement;
-  const dupesHidden = localStorage.getItem("hideDuplicates") || false;
+  const dupesHidden = JSON.parse(localStorage.getItem("hideDuplicates"));
 
   // If the table is present, then create the button and counter
   if (duplicatesTable && duplicatesHeading) {
@@ -292,7 +292,7 @@ function showHideDuplicates() {
     duplicatesHeading.style.position = "relative";
 
     // Check if the table is hidden
-    if (dupesHidden === "true") {
+    if (dupesHidden) {
       duplicatesTable.classList.add("hidden");
     }
 
@@ -324,15 +324,15 @@ function showHideDuplicates() {
     // Add event listener to the button
     button.addEventListener("click", () => {
       // If the table is hidden
+      duplicatesTable.classList.toggle("hidden");
+
+      // If the table is hidden
       if (duplicatesTable.classList.contains("hidden")) {
-        duplicatesTable.classList.remove("hidden");
-        button.innerText = "Hide Duplicates";
-        localStorage.setItem("hideDuplicates", "false");
-      // If the table is visible
-      } else {
-        duplicatesTable.classList.add("hidden");
         button.innerText = "Show Duplicates";
-        localStorage.setItem("hideDuplicates", "true");
+        localStorage.setItem("hideDuplicates", true);
+      } else {
+        button.innerText = "Hide Duplicates";
+        localStorage.setItem("hideDuplicates", false);
       }
     });
 
@@ -356,11 +356,11 @@ if (
 }
 
 if (window.location.pathname.includes("reviewer/dashboard")) {
-  showHideDuplicates();
   reviewCounterEl();
   highlightTRs();
   resub();
   isReSub();
   sortTable();
   reviewRows();
+  showHideDuplicates();
 }
